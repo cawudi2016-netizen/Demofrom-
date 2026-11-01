@@ -1,12 +1,17 @@
 import pandas as pd
+import os
 
-RAW_PATH = "/content/tourism.csv"
+# Dynamically check if running in GitHub Actions workspace or local Colab
+if os.path.exists("tourism_project/data/tourism.csv"):
+    RAW_PATH = "tourism_project/data/tourism.csv"
+else:
+    RAW_PATH = "/content/tourism.csv"
 
 # Load the raw dataset
 df = pd.read_csv(RAW_PATH)
 
 # Validate that the expected columns are present before registering it
-expected_columns = [
+expected_columns = [ 
     "CustomerID", "ProdTaken", "Age", "TypeofContact", "CityTier",
     "DurationOfPitch", "Occupation", "Gender", "NumberOfPersonVisiting",
     "NumberOfFollowups", "ProductPitched", "PreferredPropertyStar",
