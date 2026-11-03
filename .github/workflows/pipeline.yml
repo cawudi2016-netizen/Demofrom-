@@ -12,6 +12,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   test_and_validate:
     name: Automated Testing and Validation
@@ -21,11 +24,14 @@ jobs:
       # Step 1: Checkout repository code
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 2: Establish Python 3.11 matching production runtime
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
-        with: 
+        with:
           python-version: '3.11'
           cache: 'pip'
 
@@ -67,3 +73,16 @@ jobs:
           model = joblib.load(model_path)
           print('Model successfully loaded. Verified Pipeline Type:', type(model))
           "
+
+      # Step 7: Automatically Commit and Push Updates Back to Main
+      - name: Auto-Commit & Push Pipeline Updates
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to push."
+          else
+            git commit -m "chore: automatic code push from pipeline validation [skip ci]"
+            git push origin main
+          fi
